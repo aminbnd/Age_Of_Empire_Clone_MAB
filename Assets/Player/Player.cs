@@ -1,7 +1,6 @@
-using System.Collections;
+using RTS;
 using System.Collections.Generic;
 using UnityEngine;
-using RTS;
 public class Player : MonoBehaviour
 {
     public string username;
@@ -35,12 +34,18 @@ public class Player : MonoBehaviour
     {
         IncrementResourceLimit(ResourceType.Money, startMoneyLimit);
         IncrementResourceLimit(ResourceType.Power, startPowerLimit);
+        IncrementResourceLimit(ResourceType.Wood, StartWoodLimit);
+        IncrementResourceLimit(ResourceType.Food, StartFoodLimit);
+
     }
 
     private void AddStartResources()
     {
         AddResource(ResourceType.Money, startMoney);
         AddResource(ResourceType.Power, startPower);
+        AddResource(ResourceType.Wood, StartWood);
+        AddResource(ResourceType.Food, StartFood);
+
     }
     void Awake()
     {
@@ -61,5 +66,13 @@ public class Player : MonoBehaviour
         {
             hud.SetResourceValues(resources, resourceLimits);
         }
+    }
+
+    public void AddUnit(string unitName, Vector3 spawnPoint, Quaternion rotation)
+    {
+        Debug.Log("add " + unitName + " to player");
+        Units units = GetComponentInChildren<Units>();
+        GameObject newUnit = (GameObject)Instantiate(ResourceManager.GetUnit(unitName), spawnPoint, rotation);
+        newUnit.transform.parent = units.transform;
     }
 }
