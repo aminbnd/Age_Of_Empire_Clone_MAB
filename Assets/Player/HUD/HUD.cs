@@ -13,7 +13,7 @@ public class HUD : MonoBehaviour
     private CursorState activeCursorState;
     private int currentFrame = 0;
     private Dictionary<ResourceType, int> resourceValues, resourceLimits;
-    private float ORDERS_BAR_WIDTH = Screen.width * 0.10f, RESOURCE_BAR_HEIGHT = Screen.width * 0.030f;
+    private float ORDERS_BAR_WIDTH = Screen.width * 0.15f, RESOURCE_BAR_HEIGHT = Screen.width * 0.050f;
     private const int SELECTION_NAME_HEIGHT = 15;
     private const int ICON_WIDTH = 32, ICON_HEIGHT = 32, TEXT_WIDTH = 128, TEXT_HEIGHT = 32;
     public Texture2D[] resources;
@@ -210,40 +210,42 @@ public class HUD : MonoBehaviour
     }
     private void DrawOrdersBar()
     {
-        GUI.skin = ordersSkin;
-        GUI.BeginGroup(new Rect(Screen.width - ORDERS_BAR_WIDTH - BUILD_IMAGE_WIDTH, RESOURCE_BAR_HEIGHT, ORDERS_BAR_WIDTH + BUILD_IMAGE_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT));
-        GUI.Box(new Rect(BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH, 0, ORDERS_BAR_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT), "");
-        string selectionName = "";
-        if (player.SelectedObject)
-        {
-            selectionName = player.SelectedObject.objectName;
-        }
-        if (!selectionName.Equals(""))
-        {
-            GUI.Label(new Rect(0, 10, ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
-        }
+    
         /* Part 10: Drw units to create */
-        if (player.SelectedObject.IsOwnedBy(player))
+        if(player.SelectedObject != null)
         {
-            //reset slider value if the selected object has changed
-            if (lastSelection && lastSelection != player.SelectedObject) sliderValue = 0.0f;
-            DrawActions(player.SelectedObject.GetActions());
-            //store the current selection
-            lastSelection = player.SelectedObject;
-            Building selectedBuilding = lastSelection.GetComponent<Building>();
-            if (selectedBuilding)
+            GUI.skin = ordersSkin;
+            GUI.BeginGroup(new Rect(Screen.width - ORDERS_BAR_WIDTH - BUILD_IMAGE_WIDTH, RESOURCE_BAR_HEIGHT, ORDERS_BAR_WIDTH + BUILD_IMAGE_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT));
+            GUI.Box(new Rect(BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH, 0, ORDERS_BAR_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT), "");
+            string selectionName = "";
+            if (player.SelectedObject)
             {
-                DrawBuildQueue(selectedBuilding.getBuildQueueValues(), selectedBuilding.getBuildPercentage());
+                selectionName = player.SelectedObject.objectName;
             }
-        }
-        if (!selectionName.Equals(""))
-        {
-            int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH / 2;
-            float topPos = buildAreaHeight + BUTTON_SPACING;
-            GUI.Label(new Rect(leftPos, topPos, ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
-        }
 
-        GUI.EndGroup();
+            if (player.SelectedObject.IsOwnedBy(player))
+            {
+                //reset slider value if the selected object has changed
+                if (lastSelection && lastSelection != player.SelectedObject) sliderValue = 0.0f;
+                DrawActions(player.SelectedObject.GetActions());
+                //store the current selection
+                lastSelection = player.SelectedObject;
+                Building selectedBuilding = lastSelection.GetComponent<Building>();
+                if (selectedBuilding)
+                {
+                    DrawBuildQueue(selectedBuilding.getBuildQueueValues(), selectedBuilding.getBuildPercentage());
+                }
+            }
+            if (!selectionName.Equals(""))
+            {
+                int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH / 2;
+                float topPos = buildAreaHeight + BUTTON_SPACING;
+                GUI.Label(new Rect(leftPos, topPos, ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
+            }
+
+            GUI.EndGroup();
+        }
+           
     }
 
     private void DrawActions(string[] actions)
@@ -254,7 +256,8 @@ public class HUD : MonoBehaviour
         GUI.skin.button = buttons;
         int numActions = actions.Length;
         //define the area to draw the actions inside
-        GUI.BeginGroup(new Rect(BUILD_IMAGE_WIDTH, 0, ORDERS_BAR_WIDTH, buildAreaHeight));        //draw scroll bar for the list of actions if need be
+        GUI.BeginGroup(new Rect(BUILD_IMAGE_WIDTH, 4, ORDERS_BAR_WIDTH, buildAreaHeight));
+        //draw scroll bar for the list of actions if need be
         if (numActions >= MaxNumRows((int)buildAreaHeight)) DrawSlider((int)buildAreaHeight, numActions / 2.0f);
         //display possible actions as buttons and handle the button click for each
         for (int i = 0; i < numActions; i++)
