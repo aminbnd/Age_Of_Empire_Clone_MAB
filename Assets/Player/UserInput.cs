@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections;
 using RTS;
+using UnityEngine;
 
 public class UserInput : MonoBehaviour
 {
@@ -30,7 +29,7 @@ public class UserInput : MonoBehaviour
     {
         if (player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.SelectedObject)
         {
-            player.SelectedObject.SetSelection(false,player.hud.GetPlayingArea());
+            player.SelectedObject.SetSelection(false, player.hud.GetPlayingArea());
             player.SelectedObject = null;
         }
     }
@@ -42,16 +41,21 @@ public class UserInput : MonoBehaviour
             Vector3 hitPoint = FindHitPoint();
             if (hitObject && hitPoint != ResourceManager.InvalidPosition)
             {
-                if (player.SelectedObject) player.SelectedObject.MouseClick(hitObject, hitPoint, player);
+                if (player.SelectedObject)
+                {
+                    player.SelectedObject.MouseClick(hitObject, hitPoint, player);
+                }
+
                 else if (hitObject.name != "Ground")
                 {
+
                     WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject>();
                     if (worldObject)
                     {
                         //we already know the player has no selected object
                         player.SelectedObject = worldObject;
                         worldObject.SetSelection(true, player.hud.GetPlayingArea());
-                       
+
                     }
                 }
             }
@@ -77,14 +81,18 @@ public class UserInput : MonoBehaviour
     }
     private void MouseHover()
     {
+
         if (player.hud.MouseInBounds())
         {
+
             GameObject hoverObject = FindHitObject();
+
             if (hoverObject)
             {
                 if (player.SelectedObject) player.SelectedObject.SetHoverState(hoverObject);
-                else if (hoverObject.transform.parent.name != "Ground")
+                else if (hoverObject.transform.name != "Ground")
                 {
+
                     Player owner = hoverObject.transform.root.GetComponent<Player>();
                     if (owner)
                     {

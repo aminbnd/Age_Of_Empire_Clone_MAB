@@ -18,10 +18,10 @@ public class HUD : MonoBehaviour
     private const int ICON_WIDTH = 32, ICON_HEIGHT = 32, TEXT_WIDTH = 128, TEXT_HEIGHT = 32;
     public Texture2D[] resources;
     private Dictionary<ResourceType, Texture2D> resourceImages;
-
+    public Texture2D smallButtonHover, smallButtonClick;
     private WorldObject lastSelection;
     private float sliderValue;
-
+    public Texture2D rallyPointImage;
     public Texture2D buttonHover, buttonClick;
     private const int BUILD_IMAGE_WIDTH = 64, BUILD_IMAGE_HEIGHT = 64;
     private float buildAreaHeight = 0; /* need to check variable type */
@@ -29,6 +29,9 @@ public class HUD : MonoBehaviour
     private const int SCROLL_BAR_WIDTH = 22;
     private const int BUILD_IMAGE_PADDING = 8;
     public Texture2D buildFrame, buildMask;
+    public Texture2D rallyPointCursor;
+    private CursorState previousCursorState;
+
     /*** Game Engine Methods ***/
     void Start()
     {
@@ -88,6 +91,7 @@ public class HUD : MonoBehaviour
     /*** Public methods for interacting with the HUD ***/
     public void SetCursorState(CursorState newState)
     {
+        if (activeCursorState != newState) previousCursorState = activeCursorState;
         activeCursorState = newState;
         switch (newState)
         {
@@ -118,6 +122,9 @@ public class HUD : MonoBehaviour
             case CursorState.PanDown:
                 activeCursor = downCursor;
                 break;
+            case CursorState.RallyPoint:
+                activeCursor = rallyPointCursor;
+                break;
             default: break;
         }
     }
@@ -129,6 +136,10 @@ public class HUD : MonoBehaviour
         bool insideWidth = mousePos.x >= 0 && mousePos.x <= Screen.width - ORDERS_BAR_WIDTH;
         bool insideHeight = mousePos.y >= 0 && mousePos.y <= Screen.height - RESOURCE_BAR_HEIGHT;
         return insideWidth && insideHeight;
+    }
+    public CursorState GetPreviousCursorState()
+    {
+        return previousCursorState;
     }
     public Rect GetPlayingArea()
     {
@@ -148,6 +159,7 @@ public class HUD : MonoBehaviour
             topPos -= activeCursor.height / 2;
             leftPos -= activeCursor.width / 2;
         }
+        else if (activeCursorState == CursorState.RallyPoint) topPos -= activeCursor.height;
         return new Rect(leftPos, topPos, activeCursor.width, activeCursor.height);
     }
     private void UpdateCursorAnimation()
@@ -208,11 +220,44 @@ public class HUD : MonoBehaviour
             GUI.DrawTexture(new Rect(2 * BUILD_IMAGE_PADDING, topPos, width, height), buildMask);
         }
     }
+    public CursorState GetCursorState()
+    {
+        return activeCursorState;
+    }
+    private void DrawStandardBuildingOptions(Building building)
+    {
+        GUIStyle buttons = new GUIStyle();
+        buttons.hover.background = smallButtonHover;
+        buttons.active.background = smallButtonClick;
+        GUI.skin.button = buttons;
+        int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH + BUTTON_SPACING;
+        float topPos = buildAreaHeight - BUILD_IMAGE_HEIGHT / 2;
+        int width = BUILD_IMAGE_WIDTH / 2;
+        int height = BUILD_IMAGE_HEIGHT / 2;
+        if (GUI.Button(new Rect(leftPos, topPos, width, height), building.sellImage))
+        {
+            building.Sell();
+        }
+        if (building.hasSpawnPoint())
+        {
+            leftPos += width + BUTTON_SPACING;
+            if (GUI.Button(new Rect(leftPos, topPos, width, height), building.rallyPointImage))
+            {
+                if (activeCursorState != CursorState.RallyPoint && previousCursorState != CursorState.RallyPoint) SetCursorState(CursorState.RallyPoint);
+                else
+                {
+                    //dirty hack to ensure toggle between RallyPoint and not works ...
+                    SetCursorState(CursorState.PanRight);
+                    SetCursorState(CursorState.Select);
+                }
+            }
+        }
+    }
     private void DrawOrdersBar()
     {
-    
+
         /* Part 10: Drw units to create */
-        if(player.SelectedObject != null)
+        if (player.SelectedObject != null)
         {
             GUI.skin = ordersSkin;
             GUI.BeginGroup(new Rect(Screen.width - ORDERS_BAR_WIDTH - BUILD_IMAGE_WIDTH, RESOURCE_BAR_HEIGHT, ORDERS_BAR_WIDTH + BUILD_IMAGE_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT));
@@ -234,6 +279,7 @@ public class HUD : MonoBehaviour
                 if (selectedBuilding)
                 {
                     DrawBuildQueue(selectedBuilding.getBuildQueueValues(), selectedBuilding.getBuildPercentage());
+                    DrawStandardBuildingOptions(selectedBuilding);
                 }
             }
             if (!selectionName.Equals(""))
@@ -245,7 +291,7 @@ public class HUD : MonoBehaviour
 
             GUI.EndGroup();
         }
-           
+
     }
 
     private void DrawActions(string[] actions)

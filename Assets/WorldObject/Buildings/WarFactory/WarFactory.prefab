@@ -541,3 +541,5 @@ MonoBehaviour:
   hitPoints: 0
   maxHitPoints: 0
   maxBuildProgress: 1
+  rallyPointImage: {fileID: 2800000, guid: 2fe3fb059aa5acc49b233bf1e7ec6aa8, type: 3}
+  sellImage: {fileID: 2800000, guid: 901081f5deab5de47a34e05f3b267cc2, type: 3}
