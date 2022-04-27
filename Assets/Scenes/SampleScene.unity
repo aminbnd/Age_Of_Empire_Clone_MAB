@@ -213,11 +213,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2415842734154254766, guid: 0fd65792d933edf4ebab50a4f3b1e42f, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2415842734974728509, guid: 0fd65792d933edf4ebab50a4f3b1e42f, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2415842734998579526, guid: 0fd65792d933edf4ebab50a4f3b1e42f, type: 3}
       propertyPath: m_RootOrder
